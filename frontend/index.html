@@ -20,8 +20,25 @@
             </div>
         </div>
 
-        <div class="ui container">
+        <div class="ui fluid container" style="padding: 0 20px">
             <div class="ui cards" id="lists-container"></div>
+        </div>
+
+        <button class="ui circular massive icon button" id="fab-add-btn">
+            <i class="plus icon"></i>
+        </button>
+
+        <div class="ui mini modal" id="create-task-list-modal">
+            <div class="header" style="border: none;">Create new list</div>
+            <div class="content">
+                <div class="ui fluid input">
+                    <input type="text" id="new-list-input" placeholder="Enter name of the list">
+                </div>
+            </div>
+            <div class="actions modal-actions">
+                <div class="ui cancel button cancel-btn">Cancel</div>
+                <div class="ui approve button done-btn">Done</div>
+            </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
