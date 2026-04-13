@@ -35,9 +35,47 @@
                     <input type="text" id="new-list-input" placeholder="Enter name of the list">
                 </div>
             </div>
+
             <div class="actions modal-actions">
                 <div class="ui cancel button cancel-btn">Cancel</div>
-                <div class="ui approve button done-btn">Done</div>
+                <div class="ui approve button done-btn" id="done-btn">Done</div>
+            </div>
+        </div>
+
+        <div class="ui mini modal" id="create-task-modal">
+            <div class="header" style="border: none;">Add new task</div>
+            <div class="content">
+                <div class="ui form">
+                    <div class="field">
+                        <label>Task</label>
+                        <input type="text" id="task-input" placeholder="Add your task description here!">
+                    </div>
+                    <div class="field">
+                        <label>Priority</label>
+                        <select class="ui dropdown" id="task-priority">
+                            <option value="1" selected>Highest Priority</option>
+                            <option value="2">High Priority</option>
+                            <option value="3">Medium Priority</option>
+                            <option value="4">Low Priority</option>
+                            <option value="5">Lowest Priority</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="actions modal-actions">
+                <div class="ui cancel button cancel-btn">Cancel</div>
+                <div class="ui approve button done-btn" id="done-task-btn">Add</div>
+            </div>
+        </div>
+
+        <div class="ui mini modal" id="confirm-delete-modal">
+            <div class="header" style="border: none;">Confirm Deletion</div>
+                <div class="content">
+                    <p id="delete-message">Are you sure you want to delete this?</p>
+                </div>
+                <div class="actions modal-actions">
+                <div class="ui cancel button cancel-btn">Cancel</div>
+                <div class="ui approve button confirm-delete-btn">Delete</div>
             </div>
         </div>
 
