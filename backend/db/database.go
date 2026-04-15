@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"projekt1-ISO/backend/config"
-	"projekt1-ISO/backend/types"
+	"backend/config"
+	"backend/types"
 
 	_ "github.com/go-sql-driver/mysql"
 )

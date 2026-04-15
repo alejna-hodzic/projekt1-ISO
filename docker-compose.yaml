@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=$DB_PASSWORD
+      - MYSQL_DATABASE=$DB_NAME
+    volumes:
+      - data:/var/lib/mysql
+      - ./db/db_setup.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+
+  backend:
+    build: backend/
+    ports: 
+      - "$HTTP_PORT:$HTTP_PORT"
+    environment:
+      - DB_HOST=$DB_HOST
+      - DB_PORT=$DB_PORT
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_NAME=$DB_NAME
+      - DB_USER=$DB_USER
+      - HTTP_PORT=$HTTP_PORT
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    build: frontend/
+    ports:
+      - "5000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
+    restart: always
+
+
+volumes:
+  data:

@@ -241,7 +241,7 @@ function addTasksListCard(taskList) {
                 onApprove: function() {
                     delete appData[taskList.id];
                     card.remove();
-                    tFromDB(taskList.id);
+                    deleteTaskListFromDB(taskList.id);
                 }
             }).modal('show');
         } else {

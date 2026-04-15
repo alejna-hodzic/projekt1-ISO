@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	"projekt1-ISO/backend/config"
-	"projekt1-ISO/backend/db"
-	api "projekt1-ISO/backend/http"
+	"backend/config"
+	"backend/db"
+	api "backend/http"
 
 	"github.com/joho/godotenv"
 )

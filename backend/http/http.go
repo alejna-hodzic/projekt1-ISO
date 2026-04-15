@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"projekt1-ISO/backend/db"
+	"backend/db"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"

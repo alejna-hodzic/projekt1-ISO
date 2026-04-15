@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"projekt1-ISO/backend/db"
-	"projekt1-ISO/backend/types"
+	"backend/db"
+	"backend/types"
 
 	"github.com/go-chi/chi/v5"
 )

@@ -1,4 +1,4 @@
-module projekt1-ISO
+module backend
 
 go 1.22.2
 
