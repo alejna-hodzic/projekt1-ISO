@@ -1,3 +1,65 @@
+let userHash = localStorage.getItem('todo_user_hash');
+
+if (!userHash) {
+    userHash = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('todo_user_hash', userHash);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const hashDisplay = document.getElementById('user-hash-display');
+    if(hashDisplay) {
+        hashDisplay.innerText = "Vaš kod sesije: " + userHash;
+    }
+});
+
+// console.log("Trenutni User Hash:", userHash);
+
+async function saveList(listId, title) {
+    const payload = {
+        id: listId,
+        title: title
+    };
+
+    try {
+        const response = await fetch('http://localhost:5555/api/lists', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Hash': userHash 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            console.error("Somwthing went wrong on backend.");
+        }
+    } catch (error) {
+        console.error("Backend error occured:", error);
+    }
+}
+
+async function loadListsFromServer() {
+    try {
+        const response = await fetch('http://localhost:5555/api/lists', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Hash': userHash 
+            }
+        });
+
+        if (response.ok) {
+            const lists = await response.json();
+        }
+    } catch (error) {
+        console.error("Couldn't connect to backend", error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadListsFromServer();
+});
+
 const appData = {};
 let currentListId = null;
 
@@ -143,6 +205,8 @@ function handleAddNewList() {
             const addCardBtn = document.querySelector('.add-list-card-btn')
 
             container.insertBefore(newCListard, addCardBtn);
+            
+            saveList(newList.id, name);
         }
     }).modal('show');
 }
