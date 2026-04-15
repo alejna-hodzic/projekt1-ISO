@@ -36,9 +36,7 @@ Repozitorij aplikacije u kom se nalazi sva funkcionalnost ukljucujuci i fajlove 
 - docker-compose.yaml
 
 kao i sve skripte za pripremu, pokretanje, zaustavljanje i brisanje podataka aplikacije moguce je
-naci na sljedecim linkovima:
-1. [HTTPS](https://github.com/alejna-hodzic/projekt1-ISO.git)
-2. [SSH](git@github.com:alejna-hodzic/projekt1-ISO.git)
+naci na [linku](https://github.com/alejna-hodzic/projekt1-ISO).
 
 ---
 
@@ -53,28 +51,30 @@ naci na sljedecim linkovima:
 
 ### 4. Arhitektura aplikacije
 ```
-PROJEKT1-ISO/
+    PROJEKT1-ISO/
 ├── backend/                
-│   ├── config/            
-│   │   └── config.go
-│   ├── db/                
-│   │   └── database.go
+│   ├── config/             
+│   ├── db/                 
 │   ├── http/               
-│   │   ├── handlers.go
-│   │   └── http.go
 │   ├── types/              
-│   │   └── types.go
-│   └── main.go            
-├── db/                    
-│   └── db_setup.sql       
-├── frontend/              
-│   ├── app.js             
-│   ├── index.html         
-│   └── style.css          
-├── .env                   
-├── .gitignore             
-├── go.mod                 
-└── go.sum                
+│   ├── Dockerfile          
+│   ├── go.mod / go.sum     
+│   └── main.go             
+├── db/                     
+│   └── db_setup.sql        
+├── frontend/               
+│   ├── app.js
+│   ├── Dockerfile         
+│   ├── index.html
+│   └── style.css
+├── .env                    
+├── .gitignore              
+├── docker-compose.yaml    
+├── dokumentacija.md        
+├── obrisi_aplikaciju.sh   
+├── pokreni_aplikaciju.sh   
+├── pripremi_aplikaciju.sh  
+└── zaustavi_aplikaciju.sh  
 ```
 
 Backend: 
@@ -94,18 +94,59 @@ Db:
 
 ### 5. Opis servisa, mreza i volumena
 
+Servisi: 
+1. backend:
+    - cita konfiguraciju za uspostavljanje veze iz .env file
+2. frontend:
+    - Koristi bind mount za hot reload
+    - Dostupan na portu 5000 (mapiran)
+3. db:
+    - Root password i bazu podataka nad kojom radi cita iz .env file
+
+Uvijek se prvo pokrene db kontejner zatim backend i na kraju frontend. Iako se backend pokrene nakon db, inicijalizaicja tabela i konekcija s backendom moze zahtjevati malo vise vremena zbog cega restart: always ima super ulogu, da ponovo pokrece backend dok se ne uspostavi veza s bazom jednom kada je ona potpuno inicijalizirana.
+
+Mreze:
+
+Kontejneri su povezani bridge mrezom koju kreira sam docker compose, stoga nije potrebno rucno upravljati istom.
+Komunikacija izmedju kontejnera je izolovana a medjusobno se pronalaze preko imena servisa.
+
+Volumeni:
+- imenovani volumen:
+    1. data -> koristi se za mysql odnosno bd servis. Podaci u bazi ostaju sacuvani i kad se kontejner izbrise
+- bind-mount volumeni:
+    1. kod db servisa: jer mysql zahtjeva mapiranje konfiguracionog fajla na `/docker-entrypoint-initdb.d/init.sql` kako bi mogao izvrsiti tu skriptu prije pocetka rada s bazom i povezivanja s backendom.
+    2. kod frontend servisa: omogucava hot-reload funkcionalnost. Odn nije potrebno ponovo buildat image da bi se vidjele trenutne promjene u kodu na host masini!
+
+
 
 ---
 
 ### 6. Upute za pokretanje
 
+1. inicijalizirajte svoje env varijable pod sljedecim nazivima:
+    - DB_HOST
+    - DB_PORT
+    - DB_USER
+    - DB_PASSWORD
+    - DB_NAME
+2. ubijte procese na portovima 5000, 5555, 3306
+3. pokrenite [skriptu za pripremu](pripremi_aplikaciju.sh)
+3. pokrenite [skriptu za pokretanje](pokreni_aplikaciju.sh)
+4. pronadjite aplikaciju na URL: [http://localhost:5000](http://localhost:5000)
+5. nakon zavrsetka koristenja aplikacije pokrenite [skriptu za zaustavljanje](zaustavi_aplikaciju.sh)
+6. pokrenite [skriptu za birsanje resursa](obrisi_aplikaciju.sh)
+
 
 ---
 
 ### 7. Nacin pristupa aplikaciji
-URL:
+URL: 
+- https:://localhost:5000
 
 Portovi:
+- 5555
+- 5000
+- 3306
 
 ---
 
@@ -259,3 +300,25 @@ AI:
 > Ispisi mi strukturu aplikacije na osnovu ove slike strukture direktorija!
 
 Rjesenje: prihvaceno (iznad)
+
+
+---
+
+AI:
+- Google Gemini
+> docker compose up --build
+>WARN[0000] /home/alejna/Desktop/projekt1-ISO/docker-compose.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+> service "db" refers to undefined volume db/db_setup.sql: invalid compose project
+> i dont understand what im supposed to fix here
+
+Rjesenje: prihvaceno => kod docker composea bind mout volumen mora pocinjat tackom :)
+
+---
+
+AI:
+- Google Gemini
+> Why do i keep getting 404 error in the browser even though my docker compose seems okay, everything worksed before i added frontend in the picture? Here is docker compose and dockerfile for frontend.
+
+Rjesenje: prihvaceno => kada se koristi nginx kao base image za frontend on ima jasno definisanu putanju gdje se kopiraju frontend fajlovi `/usr/share/nginx/html`!
+
+
