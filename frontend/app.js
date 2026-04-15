@@ -6,9 +6,19 @@ if (!userHash) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const hashDisplay = document.getElementById('user-hash-display');
+    const hashDisplay = document.getElementById('user-hash-show');
     if(hashDisplay) {
-        hashDisplay.innerText = "Vaš kod sesije: " + userHash;
+        hashDisplay.innerText = "Your session code: " + userHash;
+
+        $('#user-hash-show').popup({
+            on: 'hover',
+            position: 'bottom center'
+        });
+
+        hashDisplay.addEventListener('click', () => {
+            navigator.clipboard.writeText(userHash);
+            alert('Session code copied!');
+        });
     }
 });
 
@@ -38,7 +48,89 @@ async function saveList(listId, title) {
     }
 }
 
-async function loadListsFromServer() {
+async function saveTaskToDB(listId, taskObj) {
+    const payload = {
+        id: taskObj.id,
+        list_id: listId, 
+        text: taskObj.text,
+        priority: parseInt(taskObj.priority),
+        completed: taskObj.completed,
+        completed_at: taskObj.completedAt || null 
+    };
+
+    try {
+        const response = await fetch('http://localhost:5555/api/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Hash': userHash
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            console.error("Something went wrong on backend while saving task.");
+        }
+    } catch (error) {
+        console.error("Backend error occured:", error);
+    }
+}
+
+async function updateTaskStatusInDB(taskObj) {
+    const payload = {
+        id: taskObj.id,
+        completed: taskObj.completed,
+        completed_at: taskObj.completedAt || null 
+    };
+
+    try {
+        const response = await fetch('http://localhost:5555/api/tasks', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Hash': userHash
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            console.error("Something went wrong while updating task status on backend.");
+        }
+    } catch (error) {
+        console.error("Backend error occured:", error);
+    }
+}
+
+async function loadTasksFromDB() {
+    try {
+        const response = await fetch('http://localhost:5555/api/tasks', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Hash': userHash
+            }
+        });
+
+        if (response.ok) {
+            const tasks = await response.json();
+            
+            tasks.forEach(task => {
+                if (appData[task.list_id]) {
+                    const exists = appData[task.list_id].tasks.some(t => t.id === task.id);
+                    if (!exists) {
+                        appData[task.list_id].tasks.push(task);
+                    }
+                }
+            });
+
+            Object.keys(appData).forEach(listId => renderTasks(listId));
+        }
+    } catch (error) {
+        console.error("Error while loading tasks:", error);
+    }
+}
+
+async function loadListsFromDB() {
     try {
         const response = await fetch('http://localhost:5555/api/lists', {
             method: 'GET',
@@ -50,14 +142,32 @@ async function loadListsFromServer() {
 
         if (response.ok) {
             const lists = await response.json();
+
+            const container = document.getElementById('lists-container');
+            lists.forEach(list => {
+                appData[list.id] = { 
+                    id: list.id, 
+                    title: list.title, 
+                    tasks: [] 
+                };
+                const listCard = addTasksListCard(appData[list.id]);
+                const addCardBtn = document.querySelector('.add-list-card-btn');
+                if (addCardBtn) {
+                    container.insertBefore(listCard, addCardBtn);
+                } else {
+                    container.appendChild(listCard);
+                }
+            });
+
         }
     } catch (error) {
         console.error("Couldn't connect to backend", error);
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadListsFromServer();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadListsFromDB();
+    await loadTasksFromDB();
 });
 
 const appData = {};
@@ -136,8 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('fab-add-btn').addEventListener('click', handleAddNewList);
 
-    
-
     $('.ui.dropdown').dropdown();
 
     $('#create-task-modal').modal({
@@ -158,22 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             appData[currentListId].tasks.push(newTask);
             renderTasks(currentListId);
+            saveTaskToDB(currentListId, newTask);
         }
     });
 
-    document.getElementById('new-list-input').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            document.getElementById('done-btn').click();
-        }
-    });
-
-    document.getElementById('task-input').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            document.getElementById('done-task-btn').click();
-        }
-    });
 });
 
 function handleAddNewList() {
@@ -270,9 +366,27 @@ function renderTasks(listId) {
                 task.completed = !task.completed;
                 task.completedAt = task.completed ? Date.now() : null;
                 renderTasks(listId); 
+
+                updateTaskStatusInDB(task);
             }
         });
 
         container.appendChild(item);
     });
 }
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        
+        const activeModal = document.querySelector('.ui.modal.active');
+        
+        if (activeModal) {
+            event.preventDefault();
+            
+            const approveBtn = activeModal.querySelector('.approve.button');
+            if (approveBtn) {
+                approveBtn.click();
+            }
+        }
+    }
+});

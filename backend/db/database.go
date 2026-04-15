@@ -86,3 +86,50 @@ func (db *Database) CleanupOldUsers() error {
 	_, err := db.db.Exec(query)
 	return err
 }
+
+func (db *Database) CreateTask(task types.Task) error {
+	query := "INSERT INTO tasks (id, list_id, text, priority, completed, completed_at) VALUES (?, ?, ?, ?, ?, ?)"
+
+	_, err := db.db.Exec(query, task.ID, task.ListID, task.Text, task.Priority, task.Completed, task.CompletedAt)
+	if err != nil {
+		slog.Error("Failed to insert new task.", "error", err)
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) UpdateTask(task types.Task) error {
+	query := "UPDATE tasks SET completed = ?, completed_at = ? WHERE id = ?"
+
+	_, err := db.db.Exec(query, task.Completed, task.CompletedAt, task.ID)
+	if err != nil {
+		slog.Error("Failed to update task completion status in database.", "error", err)
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) GetTasks(userHash string) ([]types.Task, error) {
+	query := "SELECT t.* FROM tasks t JOIN task_lists tl ON t.list_id = tl.id WHERE tl.user_hash = ?"
+
+	rows, err := db.db.Query(query, userHash)
+	if err != nil {
+		slog.Error("Error while reading tasks from database.", "error", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []types.Task
+	for rows.Next() {
+		var t types.Task
+		err := rows.Scan(&t.ID, &t.ListID, &t.Text, &t.Priority, &t.Completed, &t.CompletedAt)
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, t)
+	}
+
+	return tasks, nil
+}

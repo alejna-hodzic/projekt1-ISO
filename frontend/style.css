@@ -323,3 +323,10 @@ body {
 .ui.button.confirm-delete-btn:hover {
     background-color: #b81c1c !important;
 }
+
+#user-hash-show{
+    margin-top: 10px;
+    font-size: 14px;
+    color: #868686;
+    cursor: pointer;
+}
