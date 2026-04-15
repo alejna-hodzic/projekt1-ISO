@@ -133,3 +133,27 @@ func (db *Database) GetTasks(userHash string) ([]types.Task, error) {
 
 	return tasks, nil
 }
+
+func (db *Database) DeleteTaskList(listID string, userHash string) error {
+	query := "DELETE FROM task_lists WHERE id = ? AND user_hash = ?"
+
+	_, err := db.db.Exec(query, listID, userHash)
+	if err != nil {
+		slog.Error("Error while trying to delete task list from database.", "error", err)
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) DeleteTask(taskID string, userHash string) error {
+	query := "DELETE t FROM tasks t JOIN task_lists tl ON t.list_id = tl.id WHERE t.id = ? AND tl.user_hash = ?"
+
+	_, err := db.db.Exec(query, taskID, userHash)
+	if err != nil {
+		slog.Error("Error while trying to delete task from database:", "error", err)
+		return err
+	}
+
+	return nil
+}

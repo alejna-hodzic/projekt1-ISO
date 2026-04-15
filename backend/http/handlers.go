@@ -6,6 +6,8 @@ import (
 
 	"projekt1-ISO/backend/db"
 	"projekt1-ISO/backend/types"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type ApiHandler struct {
@@ -137,4 +139,56 @@ func (h *ApiHandler) GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(tasks)
+}
+
+func (h *ApiHandler) DeleteTaskListHandler(w http.ResponseWriter, r *http.Request) {
+	userHash := r.Header.Get("User-Hash")
+	if userHash == "" {
+		http.Error(w, "User hash is missing", http.StatusUnauthorized)
+		return
+	}
+
+	listID := chi.URLParam(r, "id")
+	if listID == "" {
+		http.Error(w, "Task list id is missing", http.StatusBadRequest)
+		return
+	}
+
+	h.DB.UpdateUserActivity(userHash)
+
+	err := h.DB.DeleteTaskList(listID, userHash)
+	if err != nil {
+		http.Error(w, "Failed to delete task list:", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"status": "success", "poruka": "Task list deleted."})
+}
+
+func (h *ApiHandler) DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+	userHash := r.Header.Get("User-Hash")
+	if userHash == "" {
+		http.Error(w, "User hash is missing", http.StatusUnauthorized)
+		return
+	}
+
+	taskID := chi.URLParam(r, "id")
+	if taskID == "" {
+		http.Error(w, "Task id is missing", http.StatusBadRequest)
+		return
+	}
+
+	h.DB.UpdateUserActivity(userHash)
+
+	err := h.DB.DeleteTask(taskID, userHash)
+	if err != nil {
+		http.Error(w, "Failed to delete task", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "Task deleted."})
 }

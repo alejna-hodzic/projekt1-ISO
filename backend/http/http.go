@@ -34,9 +34,11 @@ func InitHttp(database *db.Database) {
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/lists", h.CreateListHandler)
 		r.Get("/lists", h.GetListsHandler)
+		r.Delete("/lists/{id}", h.DeleteTaskListHandler)
 		r.Post("/tasks", h.CreateTaskHandler)
 		r.Get("/tasks", h.GetTasksHandler)
 		r.Put("/tasks", h.UpdateTaskHandler)
+		r.Delete("/tasks/{id}", h.DeleteTaskHandler)
 	})
 
 	port := os.Getenv("HTTP_PORT")

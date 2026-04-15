@@ -165,6 +165,40 @@ async function loadListsFromDB() {
     }
 }
 
+async function deleteTaskListFromDB(listId) {
+    try {
+        const response = await fetch(`http://localhost:5555/api/lists/${listId}`, {
+            method: 'DELETE',
+            headers: {
+                'User-Hash': userHash
+            }
+        });
+
+        if (!response.ok) {
+            console.error("Something went wrong while deleting task list on backend.");
+        }
+    } catch (error) {
+        console.error("Something went wrong on backend:", error);
+    }
+}
+
+async function deleteTaskFromDB(taskId) {
+    try {
+        const response = await fetch(`http://localhost:5555/api/tasks/${taskId}`, {
+            method: 'DELETE',
+            headers: {
+                'User-Hash': userHash
+            }
+        });
+
+        if (!response.ok) {
+            console.error("Something went wrong on backend while deleting task from database.");
+        }
+    } catch (error) {
+        console.error("Something went wrong on backend:", error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await loadListsFromDB();
     await loadTasksFromDB();
@@ -205,11 +239,15 @@ function addTasksListCard(taskList) {
             document.getElementById('delete-message').textContent = "This list contains tasks. Are you sure you want to delete it?";
             $('#confirm-delete-modal').modal({
                 onApprove: function() {
+                    delete appData[taskList.id];
                     card.remove();
+                    tFromDB(taskList.id);
                 }
             }).modal('show');
         } else {
+            delete appData[taskList.id];
             card.remove();
+            deleteTaskListFromDB(taskList.id);
         }
     });
 
@@ -354,6 +392,7 @@ function renderTasks(listId) {
             document.getElementById('delete-message').textContent = "Are you sure you want to delete this task?";
             $('#confirm-delete-modal').modal({
                 onApprove: function() {
+                    deleteTaskFromDB(task.id);
                     appData[listId].tasks = appData[listId].tasks.filter(t => t.id !== task.id);
                     renderTasks(listId); 
                 }
@@ -389,4 +428,19 @@ document.addEventListener('keydown', function(event) {
             }
         }
     }
+});
+
+document.getElementById('reload-tasks-btn').addEventListener('click', () => {
+    document.getElementById('session-hash-input').value = '';
+
+    $('#reload-session-modal').modal({
+        onApprove: async function() {
+            const enteredHash = document.getElementById('session-hash-input').value.trim();
+            
+            if (enteredHash !== "") {
+                localStorage.setItem('todo_user_hash', enteredHash);
+                window.location.reload();    
+            }
+        }
+    }).modal('show');
 });

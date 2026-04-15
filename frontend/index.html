@@ -80,6 +80,20 @@
             </div>
         </div>
 
+        <div class="ui mini modal" id="reload-session-modal">
+            <div class="header" style="border: none;">Load Your tasks</div>
+            <div class="content">
+                <p>Enter your previously saved session code to restore your tasks:</p>
+                <div class="ui fluid input">
+                    <input type="text" id="session-hash-input" placeholder="e.g. user_171..._abc123">
+                </div>
+            </div>
+            <div class="actions modal-actions">
+                <div class="ui cancel button cancel-btn">Cancel</div>
+                <div class="ui approve button done-btn" id="load-session-btn">Load</div>
+            </div>
+        </div>
+
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.js"></script>
         <script src="app.js"></script>
