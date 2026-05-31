@@ -1,5 +1,10 @@
 body {
     background-color: #f1f7f7;
+    background-image: url('bg3.png'); 
+    background-position: bottom center; 
+    background-size: auto 50vh; 
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     padding: 20px;
     overflow-x: auto !important;
 }
@@ -329,4 +334,12 @@ body {
     font-size: 14px;
     color: #868686;
     cursor: pointer;
+}
+
+#title-icon {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 0px; 
+    display: inline-block;
 }
