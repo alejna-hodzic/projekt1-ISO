@@ -1,6 +1,6 @@
 body {
     background-color: #f1f7f7;
-    background-image: url('bg3.png'); 
+    background-image: url('https://frontend-images-iso.s3.us-east-1.amazonaws.com/bg3.png'); 
     background-position: bottom center; 
     background-size: auto 50vh; 
     background-repeat: no-repeat;

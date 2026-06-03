@@ -39,6 +39,7 @@ func InitHttp(database *db.Database) {
 		r.Get("/tasks", h.GetTasksHandler)
 		r.Put("/tasks", h.UpdateTaskHandler)
 		r.Delete("/tasks/{id}", h.DeleteTaskHandler)
+		r.Get("/healthcheck", h.HealthCheckHandler)
 	})
 
 	port := os.Getenv("HTTP_PORT")

@@ -31,7 +31,7 @@ async function saveList(listId, title) {
     };
 
     try {
-        const response = await fetch('http://localhost:5555/api/lists', {
+        const response = await fetch('/api/lists', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ async function saveTaskToDB(listId, taskObj) {
     };
 
     try {
-        const response = await fetch('http://localhost:5555/api/tasks', {
+        const response = await fetch('/api/tasks', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ async function updateTaskStatusInDB(taskObj) {
     };
 
     try {
-        const response = await fetch('http://localhost:5555/api/tasks', {
+        const response = await fetch('/api/tasks', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ async function updateTaskStatusInDB(taskObj) {
 
 async function loadTasksFromDB() {
     try {
-        const response = await fetch('http://localhost:5555/api/tasks', {
+        const response = await fetch('/api/tasks', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ async function loadTasksFromDB() {
 
 async function loadListsFromDB() {
     try {
-        const response = await fetch('http://localhost:5555/api/lists', {
+        const response = await fetch('/api/lists', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ async function loadListsFromDB() {
 
 async function deleteTaskListFromDB(listId) {
     try {
-        const response = await fetch(`http://localhost:5555/api/lists/${listId}`, {
+        const response = await fetch(`/api/lists/${listId}`, {
             method: 'DELETE',
             headers: {
                 'User-Hash': userHash
@@ -184,7 +184,7 @@ async function deleteTaskListFromDB(listId) {
 
 async function deleteTaskFromDB(taskId) {
     try {
-        const response = await fetch(`http://localhost:5555/api/tasks/${taskId}`, {
+        const response = await fetch(`/api/tasks/${taskId}`, {
             method: 'DELETE',
             headers: {
                 'User-Hash': userHash
